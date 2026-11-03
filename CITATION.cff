@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Operando XRD viewer"
+abstract: "Desktop tool to visualise operando X-ray diffraction series (contour plot, waterfall, animations) together with the electrochemical cycling curve."
+type: software
+version: 1.0.0
+date-released: 2026-11-03
+license: MIT
+authors:
+  - family-names: "Chotard"
+    given-names: "Jean-Noël"
+    email: "jean-noel.chotard@u-picardie.fr"
+    affiliation: "Université de Picardie Jules Verne (UPJV)"
+repository-code: "https://github.com/jeannoelchotard/OperandoViewer"
+keywords:
+  - operando
+  - X-ray diffraction
+  - XRD
+  - batteries
+  - electrochemistry
