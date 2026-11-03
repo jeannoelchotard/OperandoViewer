@@ -37,15 +37,29 @@ and double-click it. No Python installation is needed.
 
 macOS and Linux users: run the script with Python (see below).
 
+## Download the script (Windows, macOS, Linux)
+
+You can also run (or read) the Python script itself. Three ways to get it, no git knowledge needed:
+
+- **A specific version:** open the [latest release](https://github.com/jeannoelchotard/OperandoViewer/releases/latest)
+  and, in the **Assets** list at the bottom, click `operando_viewer_vX.Y.Z.py` (the file name carries the version).
+- **Just the file:** open [`operando_viewer.py`](operando_viewer.py) in this repository and click the
+  **Download raw file** icon (the downward arrow, top right of the code box).
+- **The whole project** (script, example data, requirements): click the green **Code** button, then **Download ZIP**.
+
+Then install the requirements and run it, as explained below.
+
 ## Run from source
 
 Requires Python 3 with Tkinter (included in the standard Windows/macOS installers; on Debian/Ubuntu:
 `sudo apt install python3-tk`). Developed and tested with Python 3.14.
 
 ```bash
-pip install -r requirements.txt
+pip install numpy matplotlib openpyxl
 python operando_viewer.py
 ```
+
+(`pip install -r requirements.txt` does the same if you downloaded the whole project.)
 
 For **MP4 export** you also need [ffmpeg](https://ffmpeg.org/) available in your PATH
 (Windows: `winget install ffmpeg`, macOS: `brew install ffmpeg`, Linux: `sudo apt install ffmpeg`).

@@ -144,13 +144,12 @@
           <p style="margin-top:12px"><a class="btn primary" data-download-exe href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">Download the .exe</a> <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">All releases</a></p>
         </div>
         <div class="card">
-          <h3>macOS / Linux / from source</h3>
-          <p>Needs Python 3 with Tkinter.</p>
-          <pre><code>git clone https://github.com/jeannoelchotard/OperandoViewer
-cd OperandoViewer
-pip install -r requirements.txt
-python operando_viewer.py</code></pre>
-          <p>MP4 export also needs <a href="https://ffmpeg.org/">ffmpeg</a> in your PATH.</p>
+          <h3>Python script (Windows, macOS, Linux)</h3>
+          <p>Needs Python 3 with Tkinter. Download the script of the latest version, install the libraries, then run it:</p>
+          <p style="margin-top:12px"><a class="btn primary" data-download-py href="https://github.com/jeannoelchotard/OperandoViewer/blob/main/operando_viewer.py">Download the script (.py)</a> <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer/archive/refs/heads/main.zip">Whole project (.zip)</a></p>
+          <pre><code>pip install numpy matplotlib openpyxl
+python <span data-py-name>operando_viewer.py</span></code></pre>
+          <p>MP4 export also needs <a href="https://ffmpeg.org/">ffmpeg</a> in your PATH. The <em>.zip</em> also contains the example data. Comfortable with git? <code>git clone https://github.com/jeannoelchotard/OperandoViewer</code></p>
         </div>
       </div>
     </section>
@@ -195,7 +194,12 @@ python operando_viewer.py</code></pre>
     if (!r.ok) return;
     const rel = await r.json();
     const exe = (rel.assets || []).find(a => /\.exe$/i.test(a.name));
+    const py = (rel.assets || []).find(a => /\.py$/i.test(a.name));
     if (exe) document.querySelectorAll("[data-download-exe]").forEach(a => { a.href = exe.browser_download_url; });
+    if (py) {
+      document.querySelectorAll("[data-download-py]").forEach(a => { a.href = py.browser_download_url; });
+      document.querySelectorAll("[data-py-name]").forEach(el => { el.textContent = py.name; });
+    }
     document.querySelectorAll("[data-version]").forEach(el => { el.textContent = rel.tag_name; });
     document.querySelectorAll("[data-version-number]").forEach(el => { el.textContent = rel.tag_name.replace(/^v/, ""); });
   } catch (e) { /* keep the fallback links */ }
