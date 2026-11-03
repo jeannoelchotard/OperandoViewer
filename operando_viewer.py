@@ -57,7 +57,7 @@ HL_PALETTE = ["#FF45B2", "#E53935", "#FB8C00", "#43A047", "#00ACC1", "#5270FF", 
 ECHEM_WSPACE = 0.16          # gap between the diffraction axes and the electrochemistry panel
 CONTOUR_ECHEM_WSPACE = 0.30  # wider on the contour plot, to leave room for the colorbar and its label
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 PROJECT_URL = "https://github.com/jeannoelchotard/OperandoViewer"
 SITE_URL = "https://jeannoelchotard.github.io/OperandoViewer/"
 AUTHOR_NAME = "Jean-Noël Chotard"
@@ -512,9 +512,10 @@ class OperandoViewerApp(tk.Tk):
         self.wf_hl_colors = {}  # 0-based frame index -> hex color
         self._wf_hl_rendered = None  # frame set currently shown in the color rows
         self.wf_hl_lw = tk.DoubleVar(value=2.5)
-        self.wf_elev = tk.DoubleVar(value=25.0)
-        self.wf_azim = tk.DoubleVar(value=-60.0)
+        self.wf_elev = tk.DoubleVar(value=15.0)
+        self.wf_azim = tk.DoubleVar(value=-90.0)
         self._last_3d_view = None  # remembers manual rotation between redraws
+        self._applied_3d = (15.0, -90.0)  # last elevation/azimuth taken from the two fields
 
         # animation
         self.anim_speed = tk.IntVar(value=150)  # ms between frames
@@ -1148,9 +1149,6 @@ class OperandoViewerApp(tk.Tk):
         t = self._make_scrollable(self.tab_waterfall)
         ttk.Label(t, text="Waterfall view settings", style="Section.TLabel").pack(anchor="w", pady=(0, 8))
 
-        ttk.Checkbutton(t, text="Interactive 3D view (mouse rotation)", variable=self.wf_3d,
-                         command=self._on_wf_3d_toggle).pack(anchor="w", pady=(0, 8))
-
         self.wf_offset_row = ttk.Frame(t, style="Card.TFrame")
         self.wf_offset_row.pack(fill="x", pady=3)
         ttk.Label(self.wf_offset_row, text="Vertical offset", style="Card.TLabel", width=16).pack(side="left")
@@ -1205,19 +1203,23 @@ class OperandoViewerApp(tk.Tk):
         tk.Spinbox(row_hlw, from_=0.2, to=10, increment=0.2, textvariable=self.wf_hl_lw, width=8).pack(side="left")
 
         ttk.Separator(t).pack(fill="x", pady=8)
-        ttk.Label(t, text="3D viewpoint", style="Card.TLabel").pack(anchor="w", pady=(0, 4))
-        ttk.Label(t, text="Left-click and drag on the plot to rotate in real time.",
+        ttk.Label(t, text="3D viewpoint", style="Section.TLabel").pack(anchor="w", pady=(0, 6))
+        ttk.Checkbutton(t, text="Interactive 3D view (mouse rotation)", variable=self.wf_3d,
+                         command=self._on_wf_3d_toggle).pack(anchor="w", pady=(0, 4))
+        ttk.Label(t, text="Left-click and drag on the plot to rotate in real time. Typing an angle "
+                           "(Enter) or using the arrows applies it immediately.",
                   style="Card.TLabel", foreground=SUBTEXT, wraplength=310).pack(anchor="w", pady=(0, 6))
 
-        row6 = ttk.Frame(t, style="Card.TFrame")
-        row6.pack(fill="x", pady=3)
-        ttk.Label(row6, text="Initial elevation", style="Card.TLabel", width=16).pack(side="left")
-        tk.Spinbox(row6, from_=-90, to=90, textvariable=self.wf_elev, width=8).pack(side="left")
-
-        row7 = ttk.Frame(t, style="Card.TFrame")
-        row7.pack(fill="x", pady=3)
-        ttk.Label(row7, text="Initial azimuth", style="Card.TLabel", width=16).pack(side="left")
-        tk.Spinbox(row7, from_=-180, to=180, textvariable=self.wf_azim, width=8).pack(side="left")
+        for label, var, lo, hi in (("Initial elevation", self.wf_elev, -90, 90),
+                                   ("Initial azimuth", self.wf_azim, -180, 180)):
+            r = ttk.Frame(t, style="Card.TFrame")
+            r.pack(fill="x", pady=3)
+            ttk.Label(r, text=label, style="Card.TLabel", width=16).pack(side="left")
+            sp = tk.Spinbox(r, from_=lo, to=hi, textvariable=var, width=8, command=self._apply_3d_angles)
+            sp.pack(side="left")
+            sp.bind("<Return>", self._apply_3d_angles)
+            sp.bind("<KP_Enter>", self._apply_3d_angles)
+            sp.bind("<FocusOut>", self._apply_3d_angles)
 
         ttk.Button(t, text="Reset view", style="Ghost.TButton",
                    command=self.reset_3d_view).pack(fill="x", pady=(6, 0))
@@ -1865,8 +1867,11 @@ class OperandoViewerApp(tk.Tk):
                 ax.set_title(self.title_var.get(), fontsize=self.fs_title.get())
             ax.tick_params(labelsize=self.fs_ticks.get())
 
-            elev, azim = (self._last_3d_view if self._last_3d_view is not None
-                          else (self.wf_elev.get(), self.wf_azim.get()))
+            if self._last_3d_view is not None:
+                elev, azim = self._last_3d_view
+            else:
+                elev, azim = self.wf_elev.get(), self.wf_azim.get()
+                self._applied_3d = (elev, azim)
             ax.view_init(elev=elev, azim=azim)
         else:
             ax, ax_echem = self._make_anim_axes(self.figure)
@@ -1972,6 +1977,23 @@ class OperandoViewerApp(tk.Tk):
     def reset_3d_view(self):
         self._last_3d_view = None
         self.refresh_plot()
+
+    def _apply_3d_angles(self, event=None):
+        """Applies the typed elevation / azimuth at once, replacing the view left by the last
+        mouse rotation. Invalid or half-typed values are ignored."""
+        try:
+            elev, azim = float(self.wf_elev.get()), float(self.wf_azim.get())
+        except (tk.TclError, ValueError):
+            return
+        if event is not None and event.type == tk.EventType.FocusOut and (elev, azim) == self._applied_3d:
+            return  # leaving a field without editing it must not undo a mouse rotation
+        self._applied_3d = (elev, azim)
+        self._last_3d_view = None
+        ax = getattr(self, "ax", None)
+        if (self.series.n_frames and self.view_mode.get() == "waterfall" and self.wf_3d.get()
+                and hasattr(ax, "view_init")):
+            ax.view_init(elev=elev, azim=azim)
+            self.canvas.draw_idle()
 
     def _on_canvas_release(self, event):
         """Remembers the view angle after a manual mouse rotation, so it
