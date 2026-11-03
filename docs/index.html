@@ -105,10 +105,10 @@
       <h1>See your <span>operando XRD</span> series and the electrochemistry together</h1>
       <p class="lead">A free, standalone desktop tool: stack hundreds of diffraction patterns into a contour plot or a waterfall, play them as an animation, and keep the cycling curve aligned next to them.</p>
       <div class="btns">
-        <a class="btn primary" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest/download/OperandoViewer.exe">Download for Windows</a>
+        <a class="btn primary" data-download-exe href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">Download for Windows</a>
         <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer">View on GitHub</a>
       </div>
-      <p class="note">Single .exe, no Python needed &middot; free and open source (MIT)</p>
+      <p class="note">Single .exe, no Python needed &middot; latest version <strong data-version>on GitHub</strong> &middot; free and open source (MIT)</p>
       <div class="shot"><img src="images/contour.png" alt="Contour plot of a synthetic operando XRD series with the electrochemistry curve on the right" width="1280" height="800"></div>
     </div>
 
@@ -140,8 +140,8 @@
       <div class="grid">
         <div class="card">
           <h3>Windows</h3>
-          <p>Download <strong>OperandoViewer.exe</strong> and double-click it. Windows SmartScreen may warn the first time because the file is not code-signed: choose <em>More info &rarr; Run anyway</em>.</p>
-          <p style="margin-top:12px"><a class="btn primary" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest/download/OperandoViewer.exe">Download the .exe</a> <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">All releases</a></p>
+          <p>Download <strong>OperandoViewer_v<span data-version-number>x.y.z</span>.exe</strong> and double-click it. Windows SmartScreen may warn the first time because the file is not code-signed: choose <em>More info &rarr; Run anyway</em>.</p>
+          <p style="margin-top:12px"><a class="btn primary" data-download-exe href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">Download the .exe</a> <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">All releases</a></p>
         </div>
         <div class="card">
           <h3>macOS / Linux / from source</h3>
@@ -184,6 +184,23 @@ python operando_viewer.py</code></pre>
 <footer>
   <div class="wrap">Operando XRD viewer &middot; Jean-No&euml;l Chotard &middot; <a href="https://github.com/jeannoelchotard/OperandoViewer">Source on GitHub</a></div>
 </footer>
+
+<script>
+// Points the download buttons straight at the .exe of the latest release (its file name carries the
+// version). Without JavaScript, or if GitHub's API is unreachable, they open the latest release page.
+(async () => {
+  try {
+    const r = await fetch("https://api.github.com/repos/jeannoelchotard/OperandoViewer/releases/latest",
+                          { headers: { Accept: "application/vnd.github+json" } });
+    if (!r.ok) return;
+    const rel = await r.json();
+    const exe = (rel.assets || []).find(a => /\.exe$/i.test(a.name));
+    if (exe) document.querySelectorAll("[data-download-exe]").forEach(a => { a.href = exe.browser_download_url; });
+    document.querySelectorAll("[data-version]").forEach(el => { el.textContent = rel.tag_name; });
+    document.querySelectorAll("[data-version-number]").forEach(el => { el.textContent = rel.tag_name.replace(/^v/, ""); });
+  } catch (e) { /* keep the fallback links */ }
+})();
+</script>
 
 </body>
 </html>

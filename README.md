@@ -29,7 +29,7 @@ patterns into a contour plot or a waterfall, play them as an animation, and show
 
 ## Download (Windows)
 
-Get `OperandoViewer.exe` from the [**latest release**](https://github.com/jeannoelchotard/OperandoViewer/releases/latest)
+Get `OperandoViewer_vX.Y.Z.exe` (the file name carries the version) from the [**latest release**](https://github.com/jeannoelchotard/OperandoViewer/releases/latest)
 and double-click it. No Python installation is needed.
 
 > The executable is not code-signed, so Windows SmartScreen may show a warning the first time:
