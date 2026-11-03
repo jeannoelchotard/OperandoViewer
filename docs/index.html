@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operando XRD viewer</title>
+<meta name="description" content="Free desktop tool to explore operando X-ray diffraction series: contour plot, waterfall, animations and the electrochemical cycling curve, aligned.">
+<meta property="og:title" content="Operando XRD viewer">
+<meta property="og:description" content="Contour plot, waterfall and animations of operando XRD series, with the electrochemistry curve alongside.">
+<meta property="og:image" content="https://jeannoelchotard.github.io/OperandoViewer/images/contour.png">
+<style>
+  :root {
+    --blue: #5270ff; --blue-dark: #3a54d6; --pink: #ff45b2;
+    --bg: #f4f5fa; --card: #ffffff; --text: #20263b; --sub: #6b7290; --border: #e1e3ee;
+    --code-bg: #eceefa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --blue: #7d93ff; --blue-dark: #98aaff; --pink: #ff6ec4;
+      --bg: #12141f; --card: #1b1e2e; --text: #e8eaf6; --sub: #9aa1c4; --border: #2c3047;
+      --code-bg: #242842;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  a { color: var(--blue-dark); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  header.top { background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 12px; padding-bottom: 12px; }
+  .brand { font-weight: 700; font-size: 1.05rem; color: var(--text); text-decoration: none; }
+  .brand span { color: var(--blue); }
+  nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: .92rem; }
+  nav a { color: var(--sub); text-decoration: none; }
+  nav a:hover { color: var(--blue); }
+
+  .hero { padding: 56px 0 36px; text-align: center; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 14px; }
+  .hero h1 span { background: linear-gradient(90deg, var(--blue), var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { max-width: 680px; margin: 0 auto 26px; color: var(--sub); font-size: 1.12rem; }
+  .btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1px solid var(--blue); }
+  .btn.primary { background: var(--blue); color: #fff; }
+  .btn.primary:hover { background: var(--blue-dark); }
+  .btn.ghost { color: var(--blue-dark); background: var(--card); }
+  .btn.ghost:hover { border-color: var(--pink); }
+  .note { margin-top: 12px; font-size: .86rem; color: var(--sub); }
+
+  .shot { margin: 34px auto 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--card); box-shadow: 0 8px 30px rgba(32, 38, 59, .12); }
+  .shot img { display: block; width: 100%; height: auto; }
+
+  section { padding: 44px 0 8px; }
+  h2 { font-size: 1.6rem; margin: 0 0 6px; }
+  .sub { color: var(--sub); margin: 0 0 22px; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 1.05rem; color: var(--blue-dark); }
+  .card p { margin: 0; color: var(--sub); font-size: .96rem; }
+
+  figure { margin: 0; }
+  figure figcaption { margin-top: 8px; font-size: .9rem; color: var(--sub); text-align: center; }
+  .two { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+  ol.steps { padding-left: 22px; }
+  ol.steps li { margin-bottom: 8px; }
+  code, pre { background: var(--code-bg); border-radius: 6px; font-family: Consolas, "SFMono-Regular", Menlo, monospace; font-size: .9em; }
+  code { padding: 1px 6px; }
+  pre { padding: 12px 16px; overflow-x: auto; }
+  pre code { padding: 0; background: none; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; font-size: .95rem; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { width: 28%; color: var(--blue-dark); }
+  tr:last-child th, tr:last-child td { border-bottom: none; }
+
+  footer { margin-top: 56px; padding: 26px 0 40px; border-top: 1px solid var(--border); color: var(--sub); font-size: .9rem; text-align: center; }
+  @media (max-width: 560px) { nav { display: none; } .hero { padding-top: 36px; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top">Operando <span>XRD</span> viewer</a>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#screenshots">Screenshots</a>
+      <a href="#download">Download</a>
+      <a href="#start">Quick start</a>
+      <a href="#contact">Contact</a>
+      <a href="https://github.com/jeannoelchotard/OperandoViewer">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+
+    <div class="hero">
+      <h1>See your <span>operando XRD</span> series and the electrochemistry together</h1>
+      <p class="lead">A free, standalone desktop tool: stack hundreds of diffraction patterns into a contour plot or a waterfall, play them as an animation, and keep the cycling curve aligned next to them.</p>
+      <div class="btns">
+        <a class="btn primary" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest/download/OperandoViewer.exe">Download for Windows</a>
+        <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer">View on GitHub</a>
+      </div>
+      <p class="note">Single .exe, no Python needed &middot; free and open source (MIT)</p>
+      <div class="shot"><img src="images/contour.png" alt="Contour plot of a synthetic operando XRD series with the electrochemistry curve on the right" width="1280" height="800"></div>
+    </div>
+
+    <section id="features">
+      <h2>Features</h2>
+      <p class="sub">Everything you need to look at an operando experiment, in one window.</p>
+      <div class="grid">
+        <div class="card"><h3>Contour plot</h3><p>2&theta; / time / intensity as colour. A full intensity-scale control (linear, square root, gamma, logarithmic, percentile clipping, min/max) keeps a few very intense peaks from flattening the weak ones.</p></div>
+        <div class="card"><h3>Waterfall, 2D or 3D</h3><p>Stacked patterns with horizontal and vertical offsets, an interactive 3D view, and highlighted curves: pick patterns and give each its own colour and a thicker line.</p></div>
+        <div class="card"><h3>Animations</h3><p>Play patterns one at a time, or let them pile up as the experiment progresses. Export either one as an MP4 video.</p></div>
+        <div class="card"><h3>Electrochemistry alongside</h3><p>Load an EC-Lab <code>.mpt</code> or a generic <code>.csv</code>. The curve follows every view, and in the animations a marker you can drag along the curve scrubs through the patterns.</p></div>
+        <div class="card"><h3>Export</h3><p>PDF and SVG (vector) or PNG figures, MP4 animations, and CSV / Excel data files (patterns as columns, intensity matrix, electrochemistry) to re-plot in Origin or Excel.</p></div>
+        <div class="card"><h3>Simple to share</h3><p>One executable for Windows; on macOS and Linux run the single Python script. A small synthetic dataset is included to try everything in a minute.</p></div>
+      </div>
+    </section>
+
+    <section id="screenshots">
+      <h2>Screenshots</h2>
+      <p class="sub">Shown with the synthetic example dataset included in the repository.</p>
+      <div class="two">
+        <figure><div class="shot" style="margin-top:0"><img loading="lazy" src="images/waterfall.png" alt="Waterfall view with three highlighted curves" width="1280" height="800"></div><figcaption>Waterfall with highlighted curves</figcaption></figure>
+        <figure><div class="shot" style="margin-top:0"><img loading="lazy" src="images/cumulative-animation.png" alt="Cumulative animation with the draggable electrochemistry marker" width="1280" height="800"></div><figcaption>Cumulative animation and draggable marker</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="download">
+      <h2>Download</h2>
+      <p class="sub">Always the latest version.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>Windows</h3>
+          <p>Download <strong>OperandoViewer.exe</strong> and double-click it. Windows SmartScreen may warn the first time because the file is not code-signed: choose <em>More info &rarr; Run anyway</em>.</p>
+          <p style="margin-top:12px"><a class="btn primary" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest/download/OperandoViewer.exe">Download the .exe</a> <a class="btn ghost" href="https://github.com/jeannoelchotard/OperandoViewer/releases/latest">All releases</a></p>
+        </div>
+        <div class="card">
+          <h3>macOS / Linux / from source</h3>
+          <p>Needs Python 3 with Tkinter.</p>
+          <pre><code>git clone https://github.com/jeannoelchotard/OperandoViewer
+cd OperandoViewer
+pip install -r requirements.txt
+python operando_viewer.py</code></pre>
+          <p>MP4 export also needs <a href="https://ffmpeg.org/">ffmpeg</a> in your PATH.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="start">
+      <h2>Quick start</h2>
+      <p class="sub">With the synthetic example from the <code>examples/</code> folder of the repository.</p>
+      <ol class="steps">
+        <li><strong>Data</strong> tab &rarr; <em>From a .buf file</em> &rarr; <code>examples/synthetic_series.buf</code> (or <em>Select files&hellip;</em> and pick the <code>.xy</code> files).</li>
+        <li><strong>Data</strong> tab &rarr; <em>Load .csv&hellip;</em> &rarr; <code>examples/synthetic_echem.csv</code>.</li>
+        <li>Switch between the <strong>Contour</strong>, <strong>Waterfall</strong> and animation tabs.</li>
+      </ol>
+      <table>
+        <tr><th>Diffraction patterns</th><td>Plain-text files with two numeric columns (2&theta;, intensity): <code>.xy</code>, <code>.dat</code>, <code>.uxd</code>&hellip; Select the files, or give a <code>.buf</code> file listing one path per line.</td></tr>
+        <tr><th>Electrochemistry</th><td>EC-Lab <code>.mpt</code>, or a generic <code>.csv</code> (comma, semicolon or tab separated). Any numeric column can be used for the axes.</td></tr>
+      </table>
+    </section>
+
+    <section id="contact">
+      <h2>Contact, citation and license</h2>
+      <div class="grid">
+        <div class="card"><h3>Feedback &amp; feature requests</h3><p>Questions, bugs or ideas for changes are welcome: open an <a href="https://github.com/jeannoelchotard/OperandoViewer/issues">issue on GitHub</a> or write to <strong>Jean-No&euml;l Chotard</strong>, <a href="mailto:jean-noel.chotard@u-picardie.fr">jean-noel.chotard@u-picardie.fr</a>.</p></div>
+        <div class="card"><h3>Cite this software</h3><p>If it helps your research, please cite it: the GitHub page has a &ldquo;Cite this repository&rdquo; button with ready-made BibTeX and APA entries.</p></div>
+        <div class="card"><h3>License</h3><p>Free and open source under the <a href="https://github.com/jeannoelchotard/OperandoViewer/blob/main/LICENSE">MIT license</a>.</p></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Operando XRD viewer &middot; Jean-No&euml;l Chotard &middot; <a href="https://github.com/jeannoelchotard/OperandoViewer">Source on GitHub</a></div>
+</footer>
+
+</body>
+</html>

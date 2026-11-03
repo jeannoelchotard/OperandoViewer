@@ -4,6 +4,8 @@ A free, standalone desktop tool to explore **operando X-ray diffraction series**
 patterns into a contour plot or a waterfall, play them as an animation, and show the
 **electrochemical cycling curve** next to them, aligned on the same axis.
 
+**Website: <https://jeannoelchotard.github.io/OperandoViewer/>**
+
 ![Contour plot with the electrochemistry panel](docs/images/contour.png)
 
 ## Features
