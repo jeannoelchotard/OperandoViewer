@@ -59,6 +59,7 @@ CONTOUR_ECHEM_WSPACE = 0.30  # wider on the contour plot, to leave room for the 
 
 __version__ = "1.0.0"
 PROJECT_URL = "https://github.com/jeannoelchotard/OperandoViewer"
+SITE_URL = "https://jeannoelchotard.github.io/OperandoViewer/"
 AUTHOR_NAME = "Jean-Noël Chotard"
 AUTHOR_EMAIL = "jean-noel.chotard@u-picardie.fr"
 
@@ -1472,8 +1473,10 @@ class OperandoViewerApp(tk.Tk):
                    command=self._copy_author_email).pack(fill="x", pady=3)
 
         ttk.Separator(t).pack(fill="x", pady=12)
-        ttk.Label(t, text="Project page, new versions and issue tracker:",
+        ttk.Label(t, text="Website (download, quick start) and GitHub page (new versions, issue tracker):",
                   style="Card.TLabel", foreground=SUBTEXT, wraplength=310).pack(anchor="w", pady=(0, 6))
+        ttk.Button(t, text="Open the website", style="Ghost.TButton",
+                   command=lambda: webbrowser.open(SITE_URL)).pack(fill="x", pady=3)
         ttk.Button(t, text="Open the GitHub page", style="Ghost.TButton",
                    command=lambda: webbrowser.open(PROJECT_URL)).pack(fill="x", pady=3)
         ttk.Label(t, text=f"Operando XRD viewer  v{__version__}  ·  MIT license",
