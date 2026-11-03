@@ -57,7 +57,7 @@ HL_PALETTE = ["#FF45B2", "#E53935", "#FB8C00", "#43A047", "#00ACC1", "#5270FF", 
 ECHEM_WSPACE = 0.16          # gap between the diffraction axes and the electrochemistry panel
 CONTOUR_ECHEM_WSPACE = 0.30  # wider on the contour plot, to leave room for the colorbar and its label
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 PROJECT_URL = "https://github.com/jeannoelchotard/OperandoViewer"
 SITE_URL = "https://jeannoelchotard.github.io/OperandoViewer/"
 AUTHOR_NAME = "Jean-Noël Chotard"
