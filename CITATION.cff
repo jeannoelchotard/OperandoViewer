@@ -3,7 +3,7 @@ message: "If you use this software, please cite it as below."
 title: "Operando XRD viewer"
 abstract: "Desktop tool to visualise operando X-ray diffraction series (contour plot, waterfall, animations) together with the electrochemical cycling curve."
 type: software
-version: 1.0.2
+version: 1.0.3
 date-released: 2026-11-03
 license: MIT
 authors:
